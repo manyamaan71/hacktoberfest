@@ -17,6 +17,13 @@ import {
 } from './types';
 
 export const App: React.FC = () => {
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    try {
+      return localStorage.getItem('repoxray_theme') === 'dark' ? 'dark' : 'light';
+    } catch {
+      return 'light';
+    }
+  });
   const [currentView, setCurrentView] = useState<'home' | 'workspace'>('home');
   const [modelStatus, setModelStatus] = useState<ModelStatusResponse | null>(null);
   
@@ -31,6 +38,15 @@ export const App: React.FC = () => {
   const [isModelModalOpen, setIsModelModalOpen] = useState(false);
   const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    try {
+      localStorage.setItem('repoxray_theme', theme);
+    } catch (err) {
+      console.error('Failed to save theme preference:', err);
+    }
+  }, [theme]);
 
   // Local storage history
   const [history, setHistory] = useState<HistoryItem[]>(() => {
@@ -184,9 +200,11 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0D14] text-slate-100 flex flex-col font-sans">
+    <div data-theme={theme} className="app-shell min-h-screen flex flex-col font-sans">
       <Navbar
         modelStatus={modelStatus}
+        theme={theme}
+        onToggleTheme={() => setTheme((current) => current === 'light' ? 'dark' : 'light')}
         onOpenModelModal={() => setIsModelModalOpen(true)}
         onOpenHowItWorks={() => setIsHowItWorksOpen(true)}
         onOpenHistory={() => setIsHistoryOpen(true)}

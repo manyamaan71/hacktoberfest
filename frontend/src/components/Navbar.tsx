@@ -1,9 +1,11 @@
 import React from 'react';
-import { Search, Cpu, HelpCircle, History, AlertTriangle } from 'lucide-react';
+import { Search, Cpu, HelpCircle, History, AlertTriangle, Moon, Sun } from 'lucide-react';
 import { ModelStatusResponse } from '../types';
 
 interface NavbarProps {
   modelStatus: ModelStatusResponse | null;
+  theme: 'light' | 'dark';
+  onToggleTheme: () => void;
   onOpenModelModal: () => void;
   onOpenHowItWorks: () => void;
   onOpenHistory: () => void;
@@ -12,24 +14,26 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({
   modelStatus,
+  theme,
+  onToggleTheme,
   onOpenModelModal,
   onOpenHowItWorks,
   onOpenHistory,
   onNewInvestigation
 }) => {
   return (
-    <header className="sticky top-0 z-40 bg-[#0A0D14]/90 backdrop-blur-md border-b border-dark-border px-4 lg:px-6 py-3 transition-all">
+    <header className="sticky top-0 z-40 bg-dark-bg/90 backdrop-blur-md border-b border-dark-border px-4 lg:px-6 py-3 transition-all">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Brand Header */}
         <div className="flex items-center space-x-3 cursor-pointer" onClick={onNewInvestigation}>
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-violet via-brand-indigo to-brand-cyan p-0.5 shadow-glow-violet flex items-center justify-center">
-            <div className="w-full h-full bg-dark-bg rounded-[10px] flex items-center justify-center">
+            <div className="w-full h-full bg-dark-surface rounded-[10px] flex items-center justify-center">
               <Search className="w-5 h-5 text-brand-cyan" />
             </div>
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <span className="font-extrabold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400 font-mono">
+              <span className="app-theme-text font-extrabold text-xl tracking-tight font-mono">
                 REPO<span className="text-brand-cyan">XRAY</span>
               </span>
               <span className="px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase bg-brand-violet/20 text-brand-violet rounded-full border border-brand-violet/30">
@@ -44,6 +48,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Right Navigation & Status Indicators */}
         <div className="flex items-center space-x-3">
+          <button
+            onClick={onToggleTheme}
+            className="p-2 rounded-lg bg-dark-surface border border-dark-border text-brand-violet hover:bg-dark-panel transition-colors flex items-center space-x-1.5 text-xs font-medium"
+            title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            aria-pressed={theme === 'dark'}
+          >
+            {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+            <span className="hidden sm:inline">{theme === 'light' ? 'Dark' : 'Light'} mode</span>
+          </button>
+
           {/* Model Connection Status Indicator */}
           <button
             onClick={onOpenModelModal}
