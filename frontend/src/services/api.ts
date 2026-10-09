@@ -46,6 +46,36 @@ export const api = {
     return res.data;
   },
 
+  getInvestigationPdf: async (id: string): Promise<Blob> => {
+    try {
+      const res = await client.get<Blob>(`/api/investigations/${id}/report/pdf`, {
+        responseType: 'blob',
+      });
+      return res.data;
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.data instanceof Blob) {
+        const responseText = await err.response.data.text();
+        let payload: unknown;
+        try {
+          payload = JSON.parse(responseText);
+        } catch {
+          payload = null;
+        }
+        if (
+          typeof payload === 'object'
+          && payload !== null
+          && 'detail' in payload
+          && typeof payload.detail === 'string'
+        ) {
+          err.message = payload.detail;
+        } else if (responseText) {
+          err.message = responseText;
+        }
+      }
+      throw err;
+    }
+  },
+
   cancelInvestigation: async (id: string) => {
     const res = await client.post(`/api/investigations/${id}/cancel`);
     return res.data;

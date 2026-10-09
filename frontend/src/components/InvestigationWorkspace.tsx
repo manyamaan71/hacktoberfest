@@ -1,6 +1,7 @@
-import React from 'react';
-import { Loader2, AlertCircle, ArrowLeft, XCircle, ShieldAlert } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Loader2, AlertCircle, ArrowLeft, XCircle, ShieldAlert, FileText, Download, X } from 'lucide-react';
 import { InvestigationStatusResponse, InvestigationReport, AgentTraceStep } from '../types';
+import { api } from '../services/api';
 import { IssueOverviewCard } from './IssueOverviewCard';
 import { SummaryCard } from './SummaryCard';
 import { SourceFileCard } from './SourceFileCard';
@@ -24,9 +25,36 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
   onBackToSearch,
   onCancel
 }) => {
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
   const isScanning = status?.status === 'queued' || status?.status === 'indexing' || status?.status === 'investigating';
   const isFailed = status?.status === 'failed';
   const isCancelled = status?.status === 'cancelled';
+
+  useEffect(() => () => {
+    if (pdfPreviewUrl) URL.revokeObjectURL(pdfPreviewUrl);
+  }, [pdfPreviewUrl]);
+
+  const generatePdf = async () => {
+    if (!report) return;
+    setIsGeneratingPdf(true);
+    setPdfError(null);
+    try {
+      const pdf = await api.getInvestigationPdf(report.investigation_id);
+      const previewUrl = URL.createObjectURL(pdf);
+      setPdfPreviewUrl(previewUrl);
+    } catch (err: unknown) {
+      setPdfError(err instanceof Error ? err.message : 'Could not generate the PDF report.');
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
+  const closePdfPreview = () => setPdfPreviewUrl(null);
+  const pdfFilename = report
+    ? `repoxray-${report.issue.owner}-${report.issue.repository}-${report.issue.number}.pdf`
+    : 'repoxray-report.pdf';
 
   return (
     <div className="max-w-7xl mx-auto py-6 px-4 lg:px-6 space-y-6 animate-fadeIn">
@@ -41,6 +69,16 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
         </button>
 
         <div className="flex items-center space-x-2">
+          {report && (
+            <button
+              onClick={() => void generatePdf()}
+              disabled={isGeneratingPdf}
+              className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-brand-emerald hover:bg-brand-indigo border border-brand-emerald/40 text-white text-xs font-semibold transition-colors disabled:opacity-60 disabled:cursor-wait"
+            >
+              {isGeneratingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+              <span>{isGeneratingPdf ? 'Generating PDF...' : 'Generate PDF Report'}</span>
+            </button>
+          )}
           {isScanning && (
             <button
               onClick={onCancel}
@@ -124,6 +162,15 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
       {/* Completed Report View */}
       {report && (
         <div className="space-y-6">
+          {pdfError && (
+            <div role="alert" className="flex items-start justify-between gap-3 rounded-lg border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
+              <span>{pdfError}</span>
+              <button onClick={() => setPdfError(null)} aria-label="Dismiss PDF error">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+
           {/* Section A: Issue Overview */}
           <IssueOverviewCard issue={report.issue} />
 
@@ -162,6 +209,46 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
               </ul>
             </div>
           )}
+        </div>
+      )}
+
+      {pdfPreviewUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-3 backdrop-blur-sm sm:p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-label="PDF report preview"
+        >
+          <div className="flex h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-dark-border bg-dark-surface shadow-2xl">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-dark-border px-4 py-3 sm:px-6">
+              <div className="flex items-center gap-2 text-dark-bg">
+                <FileText className="h-5 w-5 text-brand-emerald" />
+                <h2 className="text-sm font-bold text-white sm:text-base">Investigation PDF Preview</h2>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href={pdfPreviewUrl}
+                  download={pdfFilename}
+                  className="inline-flex items-center gap-2 rounded-lg bg-brand-emerald px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-brand-indigo"
+                >
+                  <Download className="h-4 w-4" />
+                  Download PDF
+                </a>
+                <button
+                  onClick={closePdfPreview}
+                  className="rounded-lg border border-dark-border p-2 text-slate-300 transition-colors hover:bg-dark-panel hover:text-white"
+                  aria-label="Close PDF preview"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            <iframe
+              src={pdfPreviewUrl}
+              title="RepoXray investigation PDF report"
+              className="min-h-0 flex-1 bg-white"
+            />
+          </div>
         </div>
       )}
     </div>

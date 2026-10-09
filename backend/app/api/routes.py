@@ -1,5 +1,6 @@
-import asyncio
+import re
 from fastapi import APIRouter, HTTPException, BackgroundTasks, status
+from fastapi.responses import Response
 from app.models.schemas import (
     IssueRequest, ModelStatusResponse, InvestigationStatusResponse,
     InvestigationReport
@@ -7,6 +8,7 @@ from app.models.schemas import (
 from app.services.github_service import parse_github_issue_url, InvalidGitHubURLError
 from app.services.model_provider import GemmaModelProvider
 from app.services.investigation_manager import manager
+from app.services.pdf_report_service import build_investigation_pdf
 from app.config import settings
 
 router = APIRouter(prefix="/api")
@@ -112,6 +114,40 @@ async def get_investigation_report(investigation_id: str):
             detail=f"Investigation is still in progress (status: {st.status})."
         )
     return report
+
+@router.get("/investigations/{investigation_id}/report/pdf")
+async def download_investigation_pdf(investigation_id: str):
+    report = manager.get_report(investigation_id)
+    if not report:
+        investigation_status = manager.get_status(investigation_id)
+        if not investigation_status:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Investigation '{investigation_id}' not found."
+            )
+        if investigation_status.status == "failed":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Investigation failed: {investigation_status.error_message}"
+            )
+        raise HTTPException(
+            status_code=status.HTTP_202_ACCEPTED,
+            detail=f"Investigation is still in progress (status: {investigation_status.status})."
+        )
+
+    filename_base = re.sub(
+        r"[^A-Za-z0-9_-]+",
+        "-",
+        f"{report.issue.owner}-{report.issue.repository}-{report.issue.number}",
+    ).strip("-")
+    return Response(
+        content=build_investigation_pdf(report),
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="repoxray-{filename_base}.pdf"',
+            "Cache-Control": "no-store",
+        },
+    )
 
 @router.post("/investigations/{investigation_id}/cancel")
 async def cancel_investigation(investigation_id: str):
