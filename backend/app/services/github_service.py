@@ -50,6 +50,44 @@ def get_headers(github_token: Optional[str] = None) -> Dict[str, str]:
         headers["Authorization"] = f"token {github_token}"
     return headers
 
+def _github_api_error_message(response: httpx.Response, github_token: Optional[str]) -> str:
+    try:
+        message = response.json().get("message", "")
+    except ValueError:
+        message = ""
+
+    message = message if isinstance(message, str) else ""
+    is_rate_limited = (
+        response.status_code == 429
+        or response.headers.get("X-RateLimit-Remaining") == "0"
+        or "rate limit" in message.lower()
+    )
+
+    if response.status_code == 401:
+        return (
+            "GitHub rejected GITHUB_TOKEN. Check that the token is valid and not expired, "
+            "then restart the backend."
+        )
+
+    if is_rate_limited:
+        if github_token:
+            return (
+                "GitHub rate limit exceeded for the configured token. Wait for the limit "
+                "to reset before trying again."
+            )
+        return (
+            "GitHub's unauthenticated API rate limit was exceeded. Set GITHUB_TOKEN in "
+            "backend/.env and restart the backend."
+        )
+
+    if response.status_code == 403:
+        return (
+            "GitHub denied access to this repository or issue. Check that the repository "
+            "is public, or that GITHUB_TOKEN has access to it, then restart the backend."
+        )
+
+    return f"GitHub API error ({response.status_code}): {message or response.text}"
+
 async def fetch_issue_metadata(
     owner: str,
     repo: str,
@@ -63,10 +101,8 @@ async def fetch_issue_metadata(
         res = await client.get(issue_url, headers=headers)
         if res.status_code == 404:
             raise GitHubAPIError(f"Issue #{issue_number} or repository {owner}/{repo} not found on GitHub.")
-        elif res.status_code == 403:
-            raise GitHubAPIError("GitHub API rate limit exceeded or access forbidden. Please set a GITHUB_TOKEN.")
         elif res.status_code != 200:
-            raise GitHubAPIError(f"GitHub API error ({res.status_code}): {res.text}")
+            raise GitHubAPIError(_github_api_error_message(res, github_token))
         
         data = res.json()
         if "pull_request" in data:

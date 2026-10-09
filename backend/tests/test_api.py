@@ -10,6 +10,18 @@ def test_health_endpoint():
     data = res.json()
     assert data["status"] == "ok"
     assert data["service"] == "RepoXray API"
+    assert isinstance(data["github_token_configured"], bool)
+
+def test_cors_allows_vite_fallback_port():
+    res = client.options(
+        "/api/health",
+        headers={
+            "Origin": "http://localhost:5174",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+    assert res.status_code == 200
+    assert res.headers["access-control-allow-origin"] == "http://localhost:5174"
 
 def test_model_status_endpoint():
     res = client.get("/api/model/status")

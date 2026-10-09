@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, CheckSquare, Square, Terminal, Code2, ArrowRight } from 'lucide-react';
+import { MapPin, CheckSquare, Square, Terminal } from 'lucide-react';
 import { ContributionStep } from '../types';
 
 interface RoadmapCardProps {

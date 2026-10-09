@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, CircleDot, Tag, User, GitCommit, ShieldAlert } from 'lucide-react';
+import { ExternalLink, CircleDot, Tag, User, GitCommit } from 'lucide-react';
 import { IssueMetadata } from '../types';
 
 interface IssueOverviewCardProps {

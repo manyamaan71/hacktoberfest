@@ -61,7 +61,7 @@ export interface AgentTraceStep {
   step_number: number;
   tool_name: string;
   action_description: string;
-  input_summary: Record<string, any>;
+  input_summary: Record<string, unknown>;
   status: StepStatus;
   result_summary?: string | null;
   duration_ms?: number | null;

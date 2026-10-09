@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, History, HelpCircle, Settings, PlusCircle, CheckCircle2, ChevronRight } from 'lucide-react';
+import { Search, History, HelpCircle, Settings, PlusCircle, ChevronRight } from 'lucide-react';
 import { HistoryItem } from '../types';
 
 interface SidebarProps {

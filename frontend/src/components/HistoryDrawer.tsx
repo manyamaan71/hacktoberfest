@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, History, Trash2, ExternalLink, ArrowRight } from 'lucide-react';
+import { X, History, Trash2, ArrowRight } from 'lucide-react';
 import { HistoryItem } from '../types';
 
 interface HistoryDrawerProps {

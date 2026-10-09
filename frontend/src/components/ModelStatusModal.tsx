@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Cpu, CheckCircle2, AlertTriangle, RefreshCw, Key, ShieldCheck } from 'lucide-react';
+import { X, Cpu, CheckCircle2, AlertTriangle, RefreshCw, Key } from 'lucide-react';
 import { ModelStatusResponse } from '../types';
 
 interface ModelStatusModalProps {

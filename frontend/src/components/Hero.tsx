@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Sparkles, Code2, TestTube2, GitPullRequest, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Search, Sparkles, Code2, TestTube2, ShieldCheck } from 'lucide-react';
 import { IssueInputForm } from './IssueInputForm';
 
 interface HeroProps {

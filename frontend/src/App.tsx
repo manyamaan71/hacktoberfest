@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
+import axios from 'axios';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
 import { Hero } from './components/Hero';
@@ -41,19 +42,20 @@ export const App: React.FC = () => {
     }
   });
 
+  const loadModelStatus = useCallback(() => (
+    api.getModelStatus()
+      .then((res) => {
+        setModelStatus(res);
+      })
+      .catch((err: unknown) => {
+        console.error('Failed to load model status:', err);
+      })
+  ), []);
+
   // Load Model Status on mount
   useEffect(() => {
-    loadModelStatus();
-  }, []);
-
-  const loadModelStatus = async () => {
-    try {
-      const res = await api.getModelStatus();
-      setModelStatus(res);
-    } catch (err) {
-      console.error('Failed to load model status:', err);
-    }
-  };
+    void loadModelStatus();
+  }, [loadModelStatus]);
 
   // Save history to localStorage
   const saveHistory = (items: HistoryItem[]) => {
@@ -82,8 +84,12 @@ export const App: React.FC = () => {
       setReport(null);
       setTrace([]);
       setCurrentView('workspace');
-    } catch (err: any) {
-      const msg = err.response?.data?.detail || err.message || 'Failed to start investigation.';
+    } catch (err: unknown) {
+      const msg = axios.isAxiosError<{ detail?: string }>(err)
+        ? err.response?.data?.detail || err.message
+        : err instanceof Error
+          ? err.message
+          : 'Failed to start investigation.';
       setSubmitError(msg);
     } finally {
       setIsLoading(false);

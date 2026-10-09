@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2, AlertCircle, ArrowLeft, RefreshCw, XCircle, ShieldAlert } from 'lucide-react';
+import { Loader2, AlertCircle, ArrowLeft, XCircle, ShieldAlert } from 'lucide-react';
 import { InvestigationStatusResponse, InvestigationReport, AgentTraceStep } from '../types';
 import { IssueOverviewCard } from './IssueOverviewCard';
 import { SummaryCard } from './SummaryCard';

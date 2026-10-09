@@ -1,5 +1,6 @@
 import os
 import json
+import re
 import httpx
 from typing import Dict, Any, Optional, Tuple, List
 from app.config import settings
@@ -80,7 +81,7 @@ Description:
 For "final_answer", the "arguments" object MUST contain:
 - "summary": A concise breakdown of what the issue describes and what evidence was found.
 - "uncertainties": List of strings describing remaining unknowns.
-- "contribution_steps": List of step objects: [{"step_number": 1, "title": "...", "description": "...", "action_type": "inspect_file"|"run_tests"|"maintainer_question"}]
+- "contribution_steps": List of step objects: [{{"step_number": 1, "title": "...", "description": "...", "action_type": "inspect_file"|"run_tests"|"maintainer_question"}}]
 
 JSON response:
 """

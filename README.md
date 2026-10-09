@@ -152,7 +152,7 @@ pytest
 uvicorn app.main:app --reload --port 8000
 ```
 
-The backend server will run at `http://127.0.0.1:8000`. API docs are available at `http://127.0.0.1:8000/docs`.
+The backend server will run at `http://127.0.0.1:8000`. API docs are available at `http://127.0.0.1:8000/docs`. Check `http://127.0.0.1:8000/api/health`; `github_token_configured` should be `true` when the backend has loaded your token.
 
 ---
 
@@ -179,7 +179,9 @@ Open your browser at `http://localhost:5173`.
 
 ### Backend Configuration (`backend/.env`)
 
-Copy `backend/.env.example` to `backend/.env`:
+Copy `backend/.env.example` to `backend/.env`. Set `GITHUB_TOKEN` to a GitHub personal access token to avoid the low unauthenticated API limit for public repositories. For private repositories, grant the token access to the repository and the read permissions needed for issues and contents. Keep the token private and do not commit `.env`.
+
+After adding or changing a backend environment variable, stop and restart Uvicorn so the backend loads the new value. Confirm it took effect at `http://127.0.0.1:8000/api/health` (`github_token_configured` is a boolean and never exposes the token).
 
 | Variable | Required | Default | Description |
 |---|---|---|---|

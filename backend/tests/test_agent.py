@@ -8,7 +8,9 @@ from app.services.model_provider import GemmaModelProvider
 from app.services.agent_service import AgentService
 
 @pytest.mark.asyncio
-async def test_agent_bounded_execution_without_credentials():
+async def test_agent_bounded_execution_without_credentials(monkeypatch):
+    monkeypatch.setattr("app.services.model_provider.settings.GEMMA_API_KEY", "")
+
     with tempfile.TemporaryDirectory() as tmpdir:
         # Create a sample python file
         main_py = os.path.join(tmpdir, "main.py")

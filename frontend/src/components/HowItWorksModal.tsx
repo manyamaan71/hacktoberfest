@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, HelpCircle, Search, Code2, TestTube2, MapPin, ShieldCheck } from 'lucide-react';
+import { X, HelpCircle, Search, Code2, TestTube2, ShieldCheck } from 'lucide-react';
 
 interface HowItWorksModalProps {
   isOpen: boolean;

@@ -17,6 +17,7 @@ async def health_check():
         "status": "ok",
         "service": "RepoXray API",
         "version": "1.0.0",
+        "github_token_configured": bool(settings.GITHUB_TOKEN),
         "gemma_configured": bool(settings.GEMMA_API_KEY)
     }
 

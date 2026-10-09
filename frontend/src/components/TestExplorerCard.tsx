@@ -1,5 +1,5 @@
 import React from 'react';
-import { TestTube2, ExternalLink, ShieldCheck, Binary } from 'lucide-react';
+import { TestTube2, ExternalLink } from 'lucide-react';
 import { CandidateTest } from '../types';
 
 interface TestExplorerCardProps {

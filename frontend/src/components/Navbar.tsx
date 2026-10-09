@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Activity, Cpu, HelpCircle, History, ExternalLink, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { Search, Cpu, HelpCircle, History, AlertTriangle } from 'lucide-react';
 import { ModelStatusResponse } from '../types';
 
 interface NavbarProps {

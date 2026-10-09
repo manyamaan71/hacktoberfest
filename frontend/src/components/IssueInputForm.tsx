@@ -26,7 +26,7 @@ export const IssueInputForm: React.FC<IssueInputFormProps> = ({ onSubmit, isLoad
       return;
     }
 
-    const githubRegex = /^https?:\/\/(?:www\.)?github\.com\/[a-zA-Z0-9_\.-]+\/[a-zA-Z0-9_\.-]+\/issues\/\d+\/?$/i;
+    const githubRegex = /^https?:\/\/(?:www\.)?github\.com\/[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+\/issues\/\d+\/?$/i;
     if (!githubRegex.test(trimmed)) {
       setValidationError('Invalid format. URL must be a public GitHub issue (e.g. https://github.com/owner/repo/issues/123).');
       return;
